@@ -11,9 +11,9 @@ export default function Header() {
       {/* Logo Home Link */}
       <Link
         to={"/"}
-        className="self-center whitespace-nowrap text-sm sm:text-xl font-semibold dark:text-white"
+        className="self-center text-sm font-semibold whitespace-nowrap sm:text-xl dark:text-white"
       >
-        <span className="px-2 py-1 bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 rounded-lg text-white">
+        <span className="px-2 py-1 text-white rounded-lg bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500">
           MERNStack
         </span>
         Blog
@@ -35,26 +35,26 @@ export default function Header() {
       </Button>
 
       <div className="flex gap-2 md:order-2">
-        <Button className="w-12 h-10 hidden sm:inline" color="gray" pill>
+        <Button className="hidden w-12 h-10 sm:inline" color="gray" pill>
           <FaMoon />
         </Button>
 
         <Link to={"/sign-in"}>
-          <Button gradientDuoTone="purpleToBlue">Sign In</Button>
+          <Button gradientDuoTone="purpleToBlue" outline>Sign In</Button>
         </Link>
         {/* Hamburger menu icon for small screen */}
         <Navbar.Toggle />
       </div>
 
-        {/* as=div komutunu navbar.link hatasını almamak için verdik */}
+      {/* as=div komutunu navbar.link hatasını almamak için verdik */}
       <Navbar.Collapse>
-        <Navbar.Link active={path === "/"} as={'div'}>
+        <Navbar.Link active={path === "/"} as={"div"}>
           <Link to="/">Home</Link>
         </Navbar.Link>
-        <Navbar.Link active={path === "/about"} as={'div'}>
+        <Navbar.Link active={path === "/about"} as={"div"}>
           <Link to="/about">About</Link>
         </Navbar.Link>
-        <Navbar.Link active={path === "/projects"} as={'div'}>
+        <Navbar.Link active={path === "/projects"} as={"div"}>
           <Link to="/projects">Projects</Link>
         </Navbar.Link>
       </Navbar.Collapse>
