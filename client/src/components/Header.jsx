@@ -40,7 +40,9 @@ export default function Header() {
         </Button>
 
         <Link to={"/sign-in"}>
-          <Button gradientDuoTone="purpleToBlue" outline>Sign In</Button>
+          <Button gradientDuoTone="purpleToBlue" outline>
+            Sign In
+          </Button>
         </Link>
         {/* Hamburger menu icon for small screen */}
         <Navbar.Toggle />
