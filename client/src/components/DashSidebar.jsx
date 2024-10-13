@@ -23,9 +23,9 @@ export default function DashSidebar() {
       <SidebarItems>
         <SidebarItemGroup>
             <Link to='/dashboard?tab=profile'>
-            <SidebarItem className="cursor-pointer" active={tab === 'profile'} icon={FaUser} label={'User'} labelColor='dark'>Profile</SidebarItem>
+            <SidebarItem as="div" className="cursor-pointer" active={tab === 'profile'} icon={FaUser} label={'User'} labelColor='dark'>Profile</SidebarItem>
             </Link>
-            <SidebarItem className="cursor-pointer" icon={FaSignOutAlt} labelColor='dark'>Sign Out</SidebarItem>
+            <SidebarItem as="div" className="cursor-pointer" icon={FaSignOutAlt} labelColor='dark'>Sign Out</SidebarItem>
         </SidebarItemGroup>
       </SidebarItems>
     </Sidebar>
