@@ -1,11 +1,12 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import { Alert, Button, TextInput } from "flowbite-react";
 import { useEffect, useRef, useState } from "react";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { getDownloadURL, getStorage, ref, uploadBytesResumable } from 'firebase/storage';
 import { app } from "../firebase"
 import { CircularProgressbar } from 'react-circular-progressbar';
 import 'react-circular-progressbar/dist/styles.css';
+import { updateFailure, updateStart, updateSuccess } from "../redux/user/userSlice";
 
 export default function DashProfile() {
   const { currentUser } = useSelector((state) => state.user);
@@ -13,7 +14,12 @@ export default function DashProfile() {
   const [ imageFileUrl, setImageFileUrl ] = useState(null);
   const [ imageFileUploadingProgress, setImageFileUploadingProgress ] = useState(null);
   const [ imageFileUploadingError, setImageFileUploadingError ] = useState(null);
+  const [ imageFileUploading, setImageFileUploading ] = useState(false);
+  const [ updateUserSuccess, setUpdateUserSuccess ] = useState(null);
+  const [ updateUserError, setUpdateUserError ] = useState(null);
+  const [ formData, setFormData ] = useState({});
 
+  const dispatch = useDispatch();
   const filePickerRef = useRef();
 
   const handleImageChange = (e) => {
@@ -35,6 +41,7 @@ export default function DashProfile() {
     //     }
     //   }
     // }
+    setImageFileUploading(true);
     setImageFileUploadingError(null);
     
     const storage = getStorage(app);
@@ -52,14 +59,64 @@ export default function DashProfile() {
         setImageFileUploadingProgress(null);
         setImageFile(null);
         setImageFileUrl(null);
+        setImageFileUploading(false);
       },
       () => {
         getDownloadURL(uploadTask.snapshot.ref)
-        .then((downloadURL) => setImageFileUrl(downloadURL));
+        .then((downloadURL) => {
+          setImageFileUrl(downloadURL);
+          setFormData({ ...formData, profilePicture: downloadURL });
+          setImageFileUploading(false)
+        });
       }
-      
     )
   }
+
+  const handleChange = (e) => {
+    setFormData({ ...formData, [e.target.id]: e.target.value });
+  }
+  
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setUpdateUserError(null);
+    setUpdateUserSuccess(null);
+
+    if (Object.keys.length === 0) {
+      setUpdateUserError('No Changes Made!');
+      return;
+    }
+    if (imageFileUploading) {
+      setUpdateUserError('Please Wait for Image to Upload!')
+      return;
+    }
+
+    try {
+      dispatch(updateStart());
+  
+      const response = await fetch(`/api/user/update/${currentUser._id}`, {
+        method: 'PUT',
+        headers: {
+          'Content-type': 'application/json',
+        },
+        body: JSON.stringify(formData),
+      });
+  
+      const data = await response.json();
+  
+      if (!response.ok) {
+        dispatch(updateFailure(data.message));
+        dispatch(setUpdateUserError(data.message));
+      } else {
+        dispatch(updateSuccess(data));
+        setUpdateUserSuccess("User's Profile Updated Successfully!");
+        setUpdateUserError(null);
+      }
+    } catch (error) {
+      const errorMessage = error.message || "Something Went Wrong!";
+      dispatch(updateFailure(errorMessage));
+      setUpdateUserError(error.message);
+    }
+  };
  
   useEffect(()=>{
     if (imageFile) {
@@ -70,7 +127,7 @@ export default function DashProfile() {
   return (
     <div className="w-full max-w-lg p-3 mx-auto">
       <h1 className="text-3xl font-semibold text-center my-7">Profile</h1>
-      <form className="flex flex-col gap-4">
+      <form onSubmit={handleSubmit} className="flex flex-col gap-4">
         
         <input type="file" accept="image/*" onChange={handleImageChange} ref={filePickerRef} hidden/>
         {/* Using useRef, we removed the input view and turned the profile picture into input. */}
@@ -96,9 +153,9 @@ export default function DashProfile() {
           imageFileUploadingError && <Alert color="failure">{imageFileUploadingError}</Alert>
         }
         
-        <TextInput type="text" id="username" placeholder="username" defaultValue={currentUser.username} />
-        <TextInput type="email" id="email" placeholder="email" defaultValue={currentUser.email} />
-        <TextInput type="password" id="password" placeholder="password" />
+        <TextInput onChange={handleChange} type="text" id="username" placeholder="username" defaultValue={currentUser.username} />
+        <TextInput onChange={handleChange} type="email" id="email" placeholder="email" defaultValue={currentUser.email} />
+        <TextInput onChange={handleChange} type="password" id="password" placeholder="password" />
 
         <Button type="submit" gradientDuoTone="purpleToBlue" outline>Update</Button>
       </form>
@@ -106,6 +163,20 @@ export default function DashProfile() {
         <span className="cursor-pointer">Delete Account</span>
         <span className="cursor-pointer">Sign Out</span>
       </div>
+      {
+        updateUserSuccess && (
+          <Alert color="success" className="mt-5">
+            {updateUserSuccess}
+          </Alert>
+        )
+      }
+      {
+        updateUserError && (
+          <Alert color="failure">
+            {updateUserError}
+          </Alert>
+        )
+      }
     </div>
   );
 }
