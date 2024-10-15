@@ -1,15 +1,16 @@
 /* eslint-disable react-hooks/exhaustive-deps */
-import { Alert, Button, TextInput } from "flowbite-react";
+import { Alert, Button, Modal, ModalBody, ModalHeader, TextInput } from "flowbite-react";
 import { useEffect, useRef, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { getDownloadURL, getStorage, ref, uploadBytesResumable } from 'firebase/storage';
 import { app } from "../firebase"
 import { CircularProgressbar } from 'react-circular-progressbar';
 import 'react-circular-progressbar/dist/styles.css';
-import { updateFailure, updateStart, updateSuccess } from "../redux/user/userSlice";
+import { deleteFailure, deleteStart, deleteSuccess, updateFailure, updateStart, updateSuccess } from "../redux/user/userSlice";
+import { HiOutlineExclamationCircle } from 'react-icons/hi'
 
 export default function DashProfile() {
-  const { currentUser } = useSelector((state) => state.user);
+  const { currentUser, error } = useSelector((state) => state.user);
   const [ imageFile, setImageFile ] = useState(null);
   const [ imageFileUrl, setImageFileUrl ] = useState(null);
   const [ imageFileUploadingProgress, setImageFileUploadingProgress ] = useState(null);
@@ -17,6 +18,7 @@ export default function DashProfile() {
   const [ imageFileUploading, setImageFileUploading ] = useState(false);
   const [ updateUserSuccess, setUpdateUserSuccess ] = useState(null);
   const [ updateUserError, setUpdateUserError ] = useState(null);
+  const [ showModal, setShowModal ] = useState(false);    // for deleting user popup
   const [ formData, setFormData ] = useState({});
 
   const dispatch = useDispatch();
@@ -117,6 +119,24 @@ export default function DashProfile() {
       setUpdateUserError(error.message);
     }
   };
+
+  const handleDeleteUser = async () => {
+    setShowModal(false);
+    try {
+      dispatch(deleteStart());
+      const response = await fetch(`/api/user/delete/${currentUser._id}`, { method: 'DELETE' });
+      const data = await response.json();
+
+      if(!response.ok) {
+        dispatch(deleteFailure(data.message));
+      } else {
+        dispatch(deleteSuccess(data));
+      }
+      
+    } catch (error) {
+      dispatch(deleteFailure(error.message));
+    }
+  }
  
   useEffect(()=>{
     if (imageFile) {
@@ -160,7 +180,7 @@ export default function DashProfile() {
         <Button type="submit" gradientDuoTone="purpleToBlue" outline>Update</Button>
       </form>
       <div className="flex justify-between mt-5 text-red-500">
-        <span className="cursor-pointer">Delete Account</span>
+        <span onClick={() => setShowModal(true)} className="cursor-pointer">Delete Account</span>
         <span className="cursor-pointer">Sign Out</span>
       </div>
       {
@@ -177,6 +197,27 @@ export default function DashProfile() {
           </Alert>
         )
       }
+      {
+        error && (
+          <Alert color="failure">
+            {error}
+          </Alert>
+        )
+      }
+      {/* Delete user popup window */}
+      <Modal show={showModal} onClose={() => setShowModal(false)} popup size="md">
+        <ModalHeader />
+        <ModalBody>
+          <div className="text-center">
+            <HiOutlineExclamationCircle className="mx-auto mb-4 text-gray-400 w-14 h-14 dark:text-gray-200"/>
+            <h3 className="mb-5 text-lg text-gray-500 dark:text-gray-400">Are you sure you want to delete your acconut?</h3>
+            <div className="flex justify-center gap-4">
+              <Button color="failure" onClick={handleDeleteUser}>Yes, I&apos;m Sure!</Button>
+              <Button color="gray" onClick={() => setShowModal(false)}>No, Cancel!</Button>
+            </div>
+          </div>
+        </ModalBody>
+      </Modal>
     </div>
   );
 }
