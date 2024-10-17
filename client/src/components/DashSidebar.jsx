@@ -6,6 +6,7 @@ import { Link, useLocation } from "react-router-dom";
 import { signoutSuccess } from "../redux/user/userSlice";
 import { useDispatch, useSelector } from "react-redux";
 import { IoIosDocument } from "react-icons/io";
+import { FaUsers } from "react-icons/fa"
 
 export default function DashSidebar() {
 
@@ -51,9 +52,14 @@ export default function DashSidebar() {
             </Link>
             {
               currentUser.isAdmin && (
-                <Link to='/dashboard?tab=posts'>
-                  <SidebarItem as="div" className="cursor-pointer" active={tab === 'posts'} icon={IoIosDocument}>Posts</SidebarItem>
-                </Link>
+                <>
+                  <Link to='/dashboard?tab=posts'>
+                    <SidebarItem as="div" className="cursor-pointer" active={tab === 'posts'} icon={IoIosDocument}>Posts</SidebarItem>
+                  </Link>
+                  <Link to='/dashboard?tab=users'>
+                    <SidebarItem as="div" className="cursor-pointer" active={tab === 'users'} icon={FaUsers}>Users</SidebarItem>
+                  </Link>
+                </>
               )
             }
             <SidebarItem onClick={handleSignout} className="cursor-pointer" icon={FaSignOutAlt} labelColor='dark'>Sign Out</SidebarItem>
