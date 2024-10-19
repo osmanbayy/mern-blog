@@ -1,13 +1,15 @@
 /* eslint-disable react/prop-types */
 import { Alert, Button, Textarea } from "flowbite-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 import { Link } from "react-router-dom";
+import Comment from "./Comment";
 
 export default function CommentSection({ postId }) {
   const { currentUser } = useSelector((state) => state.user);
 
   const [comment, setComment] = useState("");
+  const [comments, setComments] = useState([]);
   const [commentError, setCommentError] = useState(null);
 
   const handleSubmit = async (e) => {
@@ -34,11 +36,27 @@ export default function CommentSection({ postId }) {
       if (response.ok) {
         setComment('');
         setCommentError(null);
+        setComments([data, ...comments]);
       }
     } catch (error) {
         setCommentError(error.message)
     }
   };
+
+  useEffect(() => {
+    const getComments = async () => {
+      try {
+        const response = await fetch(`/api/comment/comments/${postId}`);
+        if (response.ok) {
+          const data = await response.json();
+          setComments(data);
+        }
+      } catch (error) {
+        console.log(error);
+      }
+    }
+    getComments();
+  }, [postId]);
 
   return (
     <div className="w-full max-w-2xl p-3 mx-auto">
@@ -80,6 +98,25 @@ export default function CommentSection({ postId }) {
           { commentError && <Alert color="failure" className="mt-5">{commentError}</Alert> }
         </form>
       )}
+      {
+        comments.length === 0 ? (
+          <p className="my-5 text-sm">No comments yet!</p>
+        ) : (
+          <>
+            <div className="flex items-center gap-1 my-5 text-sm">
+              <p>Comments</p>
+              <div className="px-2 py-1 border border-gray-500 rounded-sm">
+                <p>{comments.length}</p>
+              </div>
+            </div>
+            {
+              comments.map((comment) => (
+                <Comment key={comment._id} comment={comment}/>
+              ))
+            }
+          </>
+        )
+      }
     </div>
   );
 }
