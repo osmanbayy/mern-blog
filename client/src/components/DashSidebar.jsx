@@ -1,12 +1,11 @@
 import { Sidebar, SidebarItem, SidebarItemGroup, SidebarItems } from "flowbite-react";
 import { useEffect, useState } from "react";
-import { FaSignOutAlt } from "react-icons/fa";
-import { FaUser } from "react-icons/fa6";
+import { FaRegComments } from "react-icons/fa";
+import { LuUser, LuFileText, LuUsers, LuLogOut  } from "react-icons/lu";
 import { Link, useLocation } from "react-router-dom";
 import { signoutSuccess } from "../redux/user/userSlice";
 import { useDispatch, useSelector } from "react-redux";
-import { IoIosDocument } from "react-icons/io";
-import { FaUsers } from "react-icons/fa"
+
 
 export default function DashSidebar() {
 
@@ -48,21 +47,24 @@ export default function DashSidebar() {
       <SidebarItems>
         <SidebarItemGroup className="flex flex-col gap-1">
             <Link to='/dashboard?tab=profile'>
-              <SidebarItem as="div" className="cursor-pointer" active={tab === 'profile'} icon={FaUser} label={currentUser.isAdmin ? 'Admin' : 'User'} labelColor='dark'>Profile</SidebarItem>
+              <SidebarItem as="div" className="cursor-pointer" active={tab === 'profile'} icon={LuUser} label={currentUser.isAdmin ? 'Admin' : 'User'} labelColor='dark'>Profile</SidebarItem>
             </Link>
             {
               currentUser.isAdmin && (
                 <>
                   <Link to='/dashboard?tab=posts'>
-                    <SidebarItem as="div" className="cursor-pointer" active={tab === 'posts'} icon={IoIosDocument}>Posts</SidebarItem>
+                    <SidebarItem as="div" className="cursor-pointer" active={tab === 'posts'} icon={LuFileText}>Posts</SidebarItem>
                   </Link>
                   <Link to='/dashboard?tab=users'>
-                    <SidebarItem as="div" className="cursor-pointer" active={tab === 'users'} icon={FaUsers}>Users</SidebarItem>
+                    <SidebarItem as="div" className="cursor-pointer" active={tab === 'users'} icon={LuUsers}>Users</SidebarItem>
+                  </Link>
+                  <Link to='/dashboard?tab=comments'>
+                    <SidebarItem as="div" className="cursor-pointer" active={tab === 'comments'} icon={FaRegComments}>Comments</SidebarItem>
                   </Link>
                 </>
               )
             }
-            <SidebarItem onClick={handleSignout} className="cursor-pointer" icon={FaSignOutAlt} labelColor='dark'>Sign Out</SidebarItem>
+            <SidebarItem onClick={handleSignout} className="cursor-pointer" icon={LuLogOut} labelColor='dark'>Sign Out</SidebarItem>
         </SidebarItemGroup>
       </SidebarItems>
     </Sidebar>
