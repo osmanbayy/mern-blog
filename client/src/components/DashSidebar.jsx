@@ -1,7 +1,7 @@
 import { Sidebar, SidebarItem, SidebarItemGroup, SidebarItems } from "flowbite-react";
 import { useEffect, useState } from "react";
 import { FaRegComments } from "react-icons/fa";
-import { LuUser, LuFileText, LuUsers, LuLogOut  } from "react-icons/lu";
+import { LuUser, LuFileText, LuUsers, LuLogOut, LuLayoutDashboard  } from "react-icons/lu";
 import { Link, useLocation } from "react-router-dom";
 import { signoutSuccess } from "../redux/user/userSlice";
 import { useDispatch, useSelector } from "react-redux";
@@ -46,6 +46,13 @@ export default function DashSidebar() {
     <Sidebar className="w-full md:w-56">
       <SidebarItems>
         <SidebarItemGroup className="flex flex-col gap-1">
+          {
+            currentUser && currentUser.isAdmin && (
+              <Link to='/dashboard?tab=dash'>
+                <SidebarItem as="div" className="cursor-pointer" active={tab === 'dash'} icon={LuLayoutDashboard}>Dashboard</SidebarItem>
+              </Link>
+            )
+          }
             <Link to='/dashboard?tab=profile'>
               <SidebarItem as="div" className="cursor-pointer" active={tab === 'profile'} icon={LuUser} label={currentUser.isAdmin ? 'Admin' : 'User'} labelColor='dark'>Profile</SidebarItem>
             </Link>
