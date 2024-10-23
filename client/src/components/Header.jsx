@@ -59,8 +59,19 @@ export default function Header() {
     navigate(`/search?${searchQuery}`);
   }
 
+  const showSearch = () => {
+    const searchIcon = document.querySelector('.search-icon');
+    const searchBar = document.querySelector('.search-bar');
+    const hiddenForm = document.querySelector('.hidden-form');
+
+    searchIcon.addEventListener("click", () => {
+      searchBar.classList.toggle('hidden');
+      hiddenForm.classList.toggle('hidden');
+    })
+  }
+
   return (
-    <Navbar className="border-b-2">
+    <Navbar className="relative border-b-2">
       <Link to={"/"} className="self-center text-sm font-semibold whitespace-nowrap sm:text-xl dark:text-white">
         <span className="px-2 py-1 text-white rounded-lg bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500">
           oBay&apos;s
@@ -72,14 +83,13 @@ export default function Header() {
         <form onSubmit={handleSubmit}>
           <TextInput value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} type="text" placeholder="Search..." rightIcon={IoSearchOutline} className="hidden sm:inline" />
         </form>
-        <Button className="flex items-center justify-center w-12 h-10 sm:hidden" color="gray" pill >
-          <IoSearchOutline size={"18px"} />
-        </Button>
-        <Button className="items-center hidden w-12 h-10 border-none outline-none sm:flex" color="gray" pill onClick={()=>dispatch(toggleTheme())} >
-          {
-            theme === 'light' ? <LuMoon size={"18px"} /> : <LuSun size={'18px'} />
-          }
-        </Button>
+        <form onSubmit={handleSubmit} className="hidden sm:hidden hidden-form">
+          <TextInput value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} type="text" placeholder="Search..." rightIcon={IoSearchOutline} className="absolute z-10 hidden sm:hidden search-bar top-16 right-2" />
+        </form>
+        <IoSearchOutline onClick={showSearch} className="w-6 h-6 sm:hidden search-icon" />
+        {
+          theme === 'light' ? <LuMoon className="w-6 h-6" onClick={()=>dispatch(toggleTheme())}/> : <LuSun className="w-6 h-6" onClick={()=>dispatch(toggleTheme())}/>
+        }
         {
           currentUser ? 
             <Dropdown arrowIcon={false} inline label={<Avatar alt="user" img={currentUser.profilePicture} rounded />}>
