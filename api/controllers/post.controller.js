@@ -45,7 +45,7 @@ export const getPosts = async (req, res, next) => {
           { content: { $regex: req.query.searchTerm, $options: 'i' } },
         ],
       })
-    }).sort({ updatedAT: sortDirection }).skip(startIndex).limit(limit);
+    }).sort({ updatedAt: sortDirection }).skip(startIndex).limit(limit);
 
     const totalPosts = await Post.countDocuments();
 

@@ -1,10 +1,11 @@
 import {Avatar, Button, Dropdown, DropdownDivider, DropdownHeader, DropdownItem, Navbar, NavbarCollapse, NavbarLink, NavbarToggle, TextInput } from "flowbite-react";
-import { Link, useLocation } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { IoSearchOutline } from "react-icons/io5";
 import { LuSun, LuMoon } from "react-icons/lu";
 import { useDispatch, useSelector } from "react-redux";
 import { toggleTheme } from "../redux/theme/themeSlice.js";
 import { signoutSuccess } from "../redux/user/userSlice.js";
+import { useEffect, useState } from "react";
 
 export default function Header() {
   const path = useLocation().pathname;
@@ -12,6 +13,21 @@ export default function Header() {
   const { theme } = useSelector(state => state.theme);
 
   const dispatch = useDispatch();
+
+  const location = useLocation();
+  const navigate = useNavigate();
+  
+  const [searchTerm, setSearchTerm] = useState('');
+
+  useEffect(() => {
+    const urlParams = new URLSearchParams(location.search);
+    const searchTermFromUrl = urlParams.get('searchTerm');
+    if (searchTermFromUrl) {
+      setSearchTerm(searchTermFromUrl);
+      setSearchTerm('');
+    }
+    
+  }, [location.search])
 
   const handleSignout = async () => {
     try {
@@ -31,6 +47,18 @@ export default function Header() {
     }
   }
 
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    if(!searchTerm || searchTerm === ''){
+      return;
+    }
+    
+    const urlParams = new URLSearchParams(location.search);
+    urlParams.set('searchTerm', searchTerm);
+    const searchQuery = urlParams.toString();
+    navigate(`/search?${searchQuery}`);
+  }
+
   return (
     <Navbar className="border-b-2">
       <Link to={"/"} className="self-center text-sm font-semibold whitespace-nowrap sm:text-xl dark:text-white">
@@ -41,10 +69,10 @@ export default function Header() {
       </Link>
 
       <div className="flex items-center gap-2 md:order-2">
-        <form>
-          <TextInput type="text" placeholder="Search..." rightIcon={IoSearchOutline} className="hidden lg:inline" />
+        <form onSubmit={handleSubmit}>
+          <TextInput value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} type="text" placeholder="Search..." rightIcon={IoSearchOutline} className="hidden sm:inline" />
         </form>
-        <Button className="flex items-center justify-center w-12 h-10 lg:hidden" color="gray" pill >
+        <Button className="flex items-center justify-center w-12 h-10 sm:hidden" color="gray" pill >
           <IoSearchOutline size={"18px"} />
         </Button>
         <Button className="items-center hidden w-12 h-10 border-none outline-none sm:flex" color="gray" pill onClick={()=>dispatch(toggleTheme())} >
